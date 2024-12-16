@@ -49,30 +49,41 @@
         let currentIndex = 0;
         let correctCount = 0;
         let startX = 0;
+        let lastTap = 0;
 
         const wordDisplay = document.getElementById('wordDisplay');
         const resultDisplay = document.getElementById('result');
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-        // Initialize with first word
         wordDisplay.innerText = shuffledWords[currentIndex];
 
-        // Mobile controls: Swipe
+        // Mobile Controls: Swipe, Tap, Double-Tap
         if (isMobile) {
             document.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
             });
 
             document.addEventListener('touchend', (e) => {
+                const now = new Date().getTime();
+                const timeSinceLastTap = now - lastTap;
+                lastTap = now;
+
                 const endX = e.changedTouches[0].clientX;
-                handleSwipe(startX, endX);
+
+                if (timeSinceLastTap < 300) {
+                    handleDoubleTap();
+                } else {
+                    handleSwipe(startX, endX);
+                }
             });
+
+            document.addEventListener('click', toggleFullscreen);
         } 
-        // Desktop controls: Keyboard
+        // Desktop Controls: Keyboard
         else {
             document.addEventListener('keydown', (e) => {
                 if (currentIndex >= shuffledWords.length) {
-                    if (e.code === 'Space') restartGame(); // Restart on Space
+                    if (e.code === 'Space') restartGame();
                 } else if (e.code === 'ArrowRight') {
                     flashScreen('green');
                     correctCount++;
@@ -99,6 +110,24 @@
             }
         }
 
+        function handleDoubleTap() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (currentIndex >= shuffledWords.length) {
+                restartGame();
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Fullscreen error: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
         function nextWord() {
             currentIndex++;
             if (currentIndex < shuffledWords.length) {
@@ -111,7 +140,7 @@
         function showResults() {
             wordDisplay.style.display = 'none';
             resultDisplay.style.display = 'block';
-            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n(Press Space to Restart)`;
+            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n(Double tap to restart)`;
         }
 
         function restartGame() {
