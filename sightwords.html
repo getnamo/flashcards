@@ -21,6 +21,7 @@
 
         #menu, #wordDisplay, #result {
             text-align: center;
+
         }
 
         #menu {
@@ -32,9 +33,13 @@
             margin-bottom: 5px;
         }
 
+        #title{
+            margin-bottom: 10px;
+        }
+
         .button {
-            margin: 10px;
-            padding: 10px 20px;
+            margin:7px;
+            padding: 9px 15px;
             background-color: #007BFF;
             color: #fff;
             border: none;
@@ -67,7 +72,7 @@
 </head>
 <body>
     <div id="menu">
-        <h2>Select Word Count</h2>
+        <h2 id="title">Select Word Count</h2>
         <div id="instructions">Swipe right for correct, swipe left for incorrect.</div>
         <button class="button" onclick="startGame(10)">First 10 Words</button>
         <button class="button" onclick="startGame(20)">First 20 Words</button>
