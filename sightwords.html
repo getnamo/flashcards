@@ -20,7 +20,6 @@
         }
 
         #wordDisplay {
-            font-size: 10vw;
             text-align: center;
             line-height: 1.2;
             color: #333;
@@ -31,6 +30,13 @@
             text-align: center;
             color: #333;
             display: none;
+        }
+        .mobileFont {
+            font-size: 18vw; /* Scales dynamically with screen width */
+        }
+
+        .desktopFont {
+            font-size: 10vw; /* Smaller for desktop screens */
         }
     </style>
 </head>
@@ -56,6 +62,12 @@
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
         wordDisplay.innerText = shuffledWords[currentIndex];
+
+        if (isMobile) {
+            wordDisplay.classList.add('mobileFont'); // Apply mobile-specific font size
+        } else {
+            wordDisplay.classList.add('desktopFont'); // Apply desktop-specific font size
+        }
 
         // Mobile Controls: Swipe, Tap, Double-Tap
         if (isMobile) {
@@ -140,7 +152,11 @@
         function showResults() {
             wordDisplay.style.display = 'none';
             resultDisplay.style.display = 'block';
-            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n(Double tap to restart)`;
+            let restartMessage = "(Press Spacebar to restart)"
+            if(isMobile){
+                restartMessage = "(Double tap to restart)"
+            }
+            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n${restartMessage}`;
         }
 
         function restartGame() {
