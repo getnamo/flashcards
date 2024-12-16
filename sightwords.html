@@ -311,7 +311,9 @@
         }
 
         function restartGame() {
-            menu.style.display = 'block';
+            menu.style.display = 'flex';
+            menu.style.flexDirection = 'column'; // Ensure menu is vertical
+            menu.style.alignContent = 'center';
             wordDisplay.style.display = 'none';
             resultDisplay.style.display = 'none';
         }
