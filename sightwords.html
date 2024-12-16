@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sight Words</title>
+    <title>Swipe Words</title>
     <style>
         body {
             margin: 0;
@@ -49,54 +49,52 @@
         let currentIndex = 0;
         let correctCount = 0;
         let startX = 0;
-        let lastTap = 0;
 
         const wordDisplay = document.getElementById('wordDisplay');
         const resultDisplay = document.getElementById('result');
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-        // Initial display
+        // Initialize with first word
         wordDisplay.innerText = shuffledWords[currentIndex];
 
-        // Single tap: Toggle fullscreen
-        document.addEventListener('click', toggleFullscreen);
+        // Mobile controls: Swipe
+        if (isMobile) {
+            document.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+            });
 
-        // Handle double tap at the end to restart
-        document.addEventListener('touchend', (e) => {
-            const now = new Date().getTime();
-            const timeSinceLastTap = now - lastTap;
-
-            if (timeSinceLastTap < 300) {
+            document.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                handleSwipe(startX, endX);
+            });
+        } 
+        // Desktop controls: Keyboard
+        else {
+            document.addEventListener('keydown', (e) => {
                 if (currentIndex >= shuffledWords.length) {
-                    restartGame();
+                    if (e.code === 'Space') restartGame(); // Restart on Space
+                } else if (e.code === 'ArrowRight') {
+                    flashScreen('green');
+                    correctCount++;
+                    nextWord();
+                } else if (e.code === 'ArrowLeft') {
+                    flashScreen('red');
+                    nextWord();
                 }
-            } else {
-                lastTap = now;
-            }
-        });
-
-        // Handle swipe
-        document.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-        });
-
-        document.addEventListener('touchend', (e) => {
-            const endX = e.changedTouches[0].clientX;
-            handleSwipe(startX, endX);
-        });
+            });
+        }
 
         function handleSwipe(startX, endX) {
-            if (currentIndex >= shuffledWords.length) return;
-
             const diffX = endX - startX;
 
+            if (currentIndex >= shuffledWords.length) return;
+
             if (diffX > 50) {
-                // Swipe right: Correct
-                flashScreen('green');
+                flashScreen('green'); // Correct
                 correctCount++;
                 nextWord();
             } else if (diffX < -50) {
-                // Swipe left: Wrong
-                flashScreen('red');
+                flashScreen('red'); // Wrong
                 nextWord();
             }
         }
@@ -113,7 +111,7 @@
         function showResults() {
             wordDisplay.style.display = 'none';
             resultDisplay.style.display = 'block';
-            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n(Double tap to restart)`;
+            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n(Press Space to Restart)`;
         }
 
         function restartGame() {
@@ -131,16 +129,6 @@
             setTimeout(() => {
                 document.body.style.backgroundColor = '#f9f9f9';
             }, 300);
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
         }
 
         function shuffleArray(array) {
