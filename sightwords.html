@@ -19,18 +19,40 @@
             transition: background-color 0.3s;
         }
 
-        #wordDisplay {
+        #menu, #wordDisplay, #result {
             text-align: center;
-            line-height: 1.2;
-            color: #333;
+        }
+
+        #menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        #wordDisplay, #result {
+            display: none;
         }
 
         #result {
             font-size: 5vw;
-            text-align: center;
-            color: #333;
-            display: none;
         }
+
         .mobileFont {
             font-size: 18vw; /* Scales dynamically with screen width */
         }
@@ -41,35 +63,60 @@
     </style>
 </head>
 <body>
+    <div id="menu">
+        <h1>Select Word Count</h1>
+        <button class="button" onclick="startGame(10)">First 10 Words</button>
+        <button class="button" onclick="startGame(20)">First 20 Words</button>
+        <button class="button" onclick="startGame(30)">First 30 Words</button>
+        <button class="button" onclick="startGame(50)">First 50 Words</button>
+        <button class="button" onclick="startGame(100)">All 100 Words</button>
+    </div>
+
     <div id="wordDisplay"></div>
     <div id="result"></div>
 
     <script>
         const words = [
-            'like', 'my', 'is', 'it', 'and', 'go',
-            'can', 'an', 'am', 'in', 'we', 'he',
-            'no', 'the', 'you', 'on', 'do', 'so', 'me', 'up'
+            "I", "at", "is", "to", "like", "me", "it", "am", "come", "and", 
+            "a", "this", "in", "here", "up", "go", "see", "my", "you", "look", 
+            "the", "said", "we", "on", "can", "one", "going", "by", "his", "with", 
+            "she", "for", "went", "have", "he", "will", "they", "yes", "run", "was", 
+            "big", "not", "where", "no", "out", "down", "of", "are", "from", 
+            "little", "who", "her", "then", "get", "away", "came", "an", "could", 
+            "why", "again", "first", "do", "eat", "so", "to", "what", "after", 
+            "there", "make", "did", "because", "all", "want", "has", "when", 
+            "be", "into", "him", "saw", "your", "but", "had", "if", "just", 
+            "or", "that", "about", "been", "some", "now", "off", "those", 
+            "made", "our", "their", "them", "over", "very", "would", "only"
         ];
 
-        let shuffledWords = shuffleArray(words);
+        let shuffledWords = [];
         let currentIndex = 0;
         let correctCount = 0;
         let startX = 0;
         let lastTap = 0;
 
+        const menu = document.getElementById('menu');
         const wordDisplay = document.getElementById('wordDisplay');
         const resultDisplay = document.getElementById('result');
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-        wordDisplay.innerText = shuffledWords[currentIndex];
+        function startGame(wordCount) {
+            shuffledWords = shuffleArray(words.slice(0, wordCount));
+            currentIndex = 0;
+            correctCount = 0;
 
-        if (isMobile) {
-            wordDisplay.classList.add('mobileFont'); // Apply mobile-specific font size
-        } else {
-            wordDisplay.classList.add('desktopFont'); // Apply desktop-specific font size
+            menu.style.display = 'none';
+            wordDisplay.style.display = 'block';
+            wordDisplay.innerText = shuffledWords[currentIndex];
+
+            if (isMobile) {
+                wordDisplay.classList.add('mobileFont');
+            } else {
+                wordDisplay.classList.add('desktopFont');
+            }
         }
 
-        // Mobile Controls: Swipe, Tap, Double-Tap
         if (isMobile) {
             document.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
@@ -88,11 +135,7 @@
                     handleSwipe(startX, endX);
                 }
             });
-
-            document.addEventListener('click', toggleFullscreen);
-        } 
-        // Desktop Controls: Keyboard
-        else {
+        } else {
             document.addEventListener('keydown', (e) => {
                 if (currentIndex >= shuffledWords.length) {
                     if (e.code === 'Space') restartGame();
@@ -113,11 +156,11 @@
             if (currentIndex >= shuffledWords.length) return;
 
             if (diffX > 50) {
-                flashScreen('green'); // Correct
+                flashScreen('green');
                 correctCount++;
                 nextWord();
             } else if (diffX < -50) {
-                flashScreen('red'); // Wrong
+                flashScreen('red');
                 nextWord();
             }
         }
@@ -127,16 +170,6 @@
                 document.exitFullscreen();
             } else if (currentIndex >= shuffledWords.length) {
                 restartGame();
-            }
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Fullscreen error: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
             }
         }
 
@@ -152,21 +185,17 @@
         function showResults() {
             wordDisplay.style.display = 'none';
             resultDisplay.style.display = 'block';
-            let restartMessage = "(Press Spacebar to restart)"
-            if(isMobile){
-                restartMessage = "(Double tap to restart)"
+            let restartMessage = "(Press Spacebar to restart)";
+            if (isMobile) {
+                restartMessage = "(Double tap to restart)";
             }
-            resultDisplay.innerText = `Correct: ${correctCount} / ${words.length}\n\n${restartMessage}`;
+            resultDisplay.innerText = `Correct: ${correctCount} / ${shuffledWords.length}\n\n${restartMessage}`;
         }
 
         function restartGame() {
-            shuffledWords = shuffleArray(words);
-            currentIndex = 0;
-            correctCount = 0;
-
-            wordDisplay.style.display = 'block';
+            menu.style.display = 'block';
+            wordDisplay.style.display = 'none';
             resultDisplay.style.display = 'none';
-            wordDisplay.innerText = shuffledWords[currentIndex];
         }
 
         function flashScreen(color) {
