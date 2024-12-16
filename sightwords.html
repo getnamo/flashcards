@@ -28,6 +28,9 @@
             flex-direction: column;
             align-items: center;
         }
+        #instructions {
+            margin-bottom: 5px;
+        }
 
         .button {
             margin: 10px;
@@ -64,7 +67,8 @@
 </head>
 <body>
     <div id="menu">
-        <h1>Select Word Count</h1>
+        <h2>Select Word Count</h2>
+        <div id="instructions">Swipe right for correct, swipe left for incorrect.</div>
         <button class="button" onclick="startGame(10)">First 10 Words</button>
         <button class="button" onclick="startGame(20)">First 20 Words</button>
         <button class="button" onclick="startGame(30)">First 30 Words</button>
@@ -74,8 +78,7 @@
         <button class="button" onclick="startGame(70)">First 70 Words</button>
         <button class="button" onclick="startGame(80)">First 80 Words</button>
         <button class="button" onclick="startGame(90)">First 90 Words</button>
-        <button class="button" onclick="startGame(100)">First 100 Words</button>
-        <button class="button" onclick="startGame(123)">All 123 Words</button>
+        <button class="button" onclick="startGame(123)">All Words</button>
     </div>
 
     <div id="wordDisplay"></div>
@@ -266,6 +269,8 @@
                     nextWord();
                 }
             });
+
+            document.getElementById('instructions').textContent = 'Use Right Arrow for correct, Left Arrow for incorrect.';
         }
 
         function handleSwipe(startX, endX) {
